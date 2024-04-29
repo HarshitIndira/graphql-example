@@ -1,4 +1,3 @@
-const path = require('path');
 const express = require('express');
 const app = express();
 
@@ -10,30 +9,18 @@ const typesArray = loadFilesSync('**/*', {
     extensions: ['graphql'],
 });
 
-const schema = makeExecutableSchema({
-    typeDefs: [typesArray],
-    resolvers: {
-        Query: {
-            products: (parent, args, context, info) => {
-                console.log("Getting the products");
-                return parent.products;
-            },
-            orders: (parent) => {
-                console.log("Getting the orders");
-                return parent.orders;
-            }
-        }
-    }
+const resolversArray = loadFilesSync('**/*', {
+    extensions: ['resolvers.js']
 })
 
-const root = {
-    products: require('./products/products.model'),
-    orders: require('./orders/orders.model'),
-}
+const schema = makeExecutableSchema({
+    typeDefs: [typesArray],
+    resolvers: resolversArray,
+}) 
+
 
 app.use('/graphql', graphqlHTTP({
     schema: schema,
-    rootValue: root,
     graphiql: true,
 }));
 
